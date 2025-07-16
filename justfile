@@ -100,10 +100,16 @@ connect-user host:
 		x("ssh {{host}}")
 	end
 
-# run coc with password
+# run coc, possibly with password
 [group("actions")]
 coc:
-	ansible coc -m shell -a "KEY='$(pass luks/usbdrives)' coc"
+	#!/bin/bash
+	[ -z "${COC_KEY_COMMAND}" ] || {
+		COCKEY=$(${COC_KEY_COMMAND})
+		ansible coc -m shell -a "KEY='${COCKEY}' coc"
+		exit $?
+	}
+	ansible coc -a coc
 
 # backup justfiles
 [group("actions")]
@@ -137,6 +143,7 @@ init := ```
 	[ -x ~/.lc-init ] && ~/.lc-init || echo "~/.lc-init not found"
 ```
 
+set dotenv-load
 set export
 set shell := ["bash","-uc"]
 # vim: ft=just
