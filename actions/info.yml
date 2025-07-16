@@ -1,0 +1,11 @@
+- name: show interesting and relevant information
+  hosts: all
+  #become: yes
+  tasks:
+    - name: get from setup
+      setup:
+        filter:
+          - 'ansible_os_family'
+          - 'ansible_bios_date'
+          - 'ansible_fqdn'
+

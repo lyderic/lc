@@ -1,0 +1,46 @@
+#!/usr/bin/env -S just --justfile
+
+alias h := _help
+
+BINDIR := home_directory() / "bin"
+CONFIGDIR := home_directory() / ".config/lc"
+
+install: binaries script environment
+
+binaries:
+	#!/bin/bash -eu
+	blue "[binaries]"
+	for binary in /usr/bin/{ansible,incus} ; do
+		echo -n "${binary} "
+		[ -x "${binary}" ] && ok found
+	done
+
+script:
+	#!/bin/bash
+	blue "[script]"
+	mkdir -pv "${BINDIR}" 
+	echo "just --justfile {{justfile_directory()}}/justfile \${@}" \
+		| tee "${BINDIR}/lc"
+	chmod +x -v "${BINDIR}/lc"
+
+environment:
+	#!/bin/bash
+	blue "[environment]"
+	[ -z "${ANSIBLE_CONFIG}" ] && fail missing ANSIBLE_CONFIG envar
+	echo "ANSIBLE_CONFIG=${ANSIBLE_CONFIG}"
+
+_help:
+	@$yo --list --unsorted --alias-style left --color always \
+		--list-heading='' --list-prefix=' ' \
+		| sed -e 's/alias: //'
+
+[private]
+v:
+	$yo --evaluate
+
+yo := justfile()
+
+#set dotenv-load
+set export
+set shell := ["bash","-uc"]
+# vim: ft=just

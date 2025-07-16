@@ -1,0 +1,8 @@
+- name: justfile backup
+  hosts: all
+  tasks:
+    - name: fetch justfile
+      fetch:
+        src: "~{{ operator }}/justfile"
+        dest: "~/repositories/justfiles/{{ ansible_host }}/justfile"
+        flat: yes

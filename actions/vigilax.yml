@@ -1,0 +1,10 @@
+- name: vigilax
+  hosts: all
+  tasks:
+    - name: produce report
+      command: "~{{ operator }}/.justfile.d/vigilax.lua"
+      register: script_output
+    - name: show output
+      debug:
+        var: script_output.stdout
+        #msg: "distro: {{ (script_output.stdout|from_json).distro }}"

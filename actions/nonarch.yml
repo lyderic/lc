@@ -1,0 +1,7 @@
+- name: show version of non arch distros
+  hosts: all
+  tasks:
+    - name: distribution versions
+      debug:
+        msg: "{{ansible_distribution}} {{ansible_distribution_version}}"
+      when: ansible_os_family != "Archlinux"
