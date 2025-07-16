@@ -104,6 +104,8 @@ connect-user host:
 [group("actions")]
 coc:
 	#!/bin/bash
+	# set this in a .env file with e.g.:
+	# COC_KEY_COMMAND='pass path/to/luks/key'
 	[ -z "${COC_KEY_COMMAND}" ] || {
 		COCKEY=$(${COC_KEY_COMMAND})
 		ansible coc -m shell -a "KEY='${COCKEY}' coc"
