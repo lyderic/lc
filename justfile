@@ -54,8 +54,8 @@ ping:
 
 # status vigilax reporting
 [group("reporting")]
-status *arg:
-	@./actions/status.lua {{arg}}
+status:
+	@./actions/status.lua -t "${t}"
 
 # update packages
 [group("actions")]
