@@ -23,7 +23,7 @@ names:
 [group("listing")]
 cnames:
 	#!/usr/bin/env -S lua -llee
-	x([[{{justfile()}} _init "${t}"]])
+	x([[lc _init "${t}"]])
 	data = json.decode(ea("ansible-inventory --list --limit ${t}"))
 	for host,keys in pairs(data._meta.hostvars) do
 		fh = io.open("/tmp/ansible_facts/"..host)
