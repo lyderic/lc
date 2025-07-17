@@ -7,6 +7,7 @@ alias u  := connect-user
 alias rs := reset
 alias b  := backup-justfiles
 alias ua := machinesupdate
+alias cz := chezmoiupdate
 
 _help:
 	@just --list --unsorted --alias-style left --color always \
