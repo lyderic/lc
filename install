@@ -19,8 +19,7 @@ script:
 	#!/bin/bash
 	blue "[script]"
 	mkdir -pv "${BINDIR}" 
-	echo "just --justfile {{justfile_directory()}}/justfile \${@}" \
-		| tee "${BINDIR}/lc"
+	echo "${script}" | tee "${BINDIR}/lc"
 	chmod +x -v "${BINDIR}/lc"
 
 environment:
@@ -39,6 +38,9 @@ v:
 	$yo --evaluate
 
 yo := justfile()
+
+script := '''[ -x ~/.lc-init ] && source ~/.lc-init
+just --justfile '''+justfile_directory()+'/justfile ${@}'
 
 #set dotenv-load
 set export

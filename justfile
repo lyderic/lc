@@ -141,10 +141,6 @@ v:
 
 t := "all"
 
-init := ```
-	[ -x ~/.lc-init ] && ~/.lc-init || echo "~/.lc-init not found"
-```
-
 set dotenv-load
 set export
 set shell := ["bash","-uc"]
