@@ -1,6 +1,7 @@
 alias h   := _help
 alias ls  := names
 alias s   := status
+alias dis := distro
 alias cn  := cnames
 alias gr  := groups
 alias u   := connect-user
@@ -26,7 +27,7 @@ names:
 [group("reporting")]
 cnames:
 	#!/usr/bin/env -S lua -llee
-	x([[lc _init "${t}"]])
+	x([[just _init "${t}"]])
 	data = json.decode(ea("ansible-inventory --list --limit ${t}"))
 	for host,keys in pairs(data._meta.hostvars) do
 		fh = io.open("/tmp/ansible_facts/"..host)
@@ -63,6 +64,20 @@ ping:
 [group("reporting")]
 status:
 	./scripts/status.lua -t "${t}"
+
+# show distros
+[group("reporting")]
+distro:
+	#!/usr/bin/env -S lua -llee
+	x("just t='{{t}}' _init")
+	data = json.decode(ea("ansible-inventory --list --limit '{{t}}'"))
+	local lines = { "host,distro" }
+	for host,keys in pairs(data._meta.hostvars) do
+		local distribution = keys.ansible_distribution.__ansible_unsafe
+		table.insert(lines, f("%s,%s",host,distribution))
+	end
+	local output = table.concat(lines,"\n")
+	x("echo '"..output.."' | xan view -p -I -M")
 
 # update packages
 [group("actions")]
@@ -133,12 +148,12 @@ backup-justfiles:
 reset:
 	rm -rvf /tmp/ansible_facts/*
 
-_init target="all":
+_init:
 	#!/bin/bash
-	[ -e /tmp/ansible_facts/{{target}} ] && exit 0
+	[ -e /tmp/ansible_facts/${t} ] && exit 0
 	echo -ne "\e[2mgathering facts, please wait...\e[m"
 	export ANSIBLE_STDOUT_CALLBACK=community.general.null
-	ansible-playbook "actions/init.yml" -l {{target}}
+	ansible-playbook "actions/init.yml" -l "${t}"
 	echo -ne "\r\e[K"
 
 _completion:
