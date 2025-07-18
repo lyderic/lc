@@ -91,20 +91,6 @@ ruser *cmd:
 rroot *cmd:
 	@./scripts/runcmd.lua "${t}" "bm" ${cmd}
 
-# one line output of <cmd>
-oneline *cmd:
-	#!/usr/bin/env -S lua -llee
-	expression = "^(%S+) %| %S+ %| %S+=%d+ %| %(%S+%) (.+)$"
-	for line in e("ansible {{t}} -om shell -a '{{cmd}}'"):lines() do
-		if line:find("FAILED!") then
-			host = line:match("^(%S+)")
-			printf("\27[1m%-9.9s\27[m \27[31mERROR [%s]\27[m\n", host, line)
-		else
-			host, output = line:match(expression)
-			printf("\27[1m%-9.9s\27[m %s\n", host, output)
-		end
-	end
-
 # connect as uid 1000
 [group("actions")]
 connect-user host:
