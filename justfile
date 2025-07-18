@@ -18,12 +18,12 @@ _help:
 		| sed -e 's/alias: //'
 
 # list names
-[group("listing")]
+[group("reporting")]
 names:
 	@ansible "${t}" --list | sed 1d | awk '{print $1}' | sort | less -FRIX
 
 # list names with remotes
-[group("listing")]
+[group("reporting")]
 cnames:
 	#!/usr/bin/env -S lua -llee
 	x([[lc _init "${t}"]])
@@ -40,7 +40,7 @@ cnames:
 	end
 
 # list groups
-[group("listing")]
+[group("reporting")]
 groups:
 	#!/usr/bin/env -S lua -llee
 	target = env("t")
