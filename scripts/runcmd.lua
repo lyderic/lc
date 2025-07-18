@@ -21,7 +21,7 @@ function main()
 end
 
 function execansible(ansible)
-	io.write("running, please wait...") io.flush()
+	io.write("\27[2;36mrunning, please wait...\27[m") io.flush()
 	x(ansible.." >/dev/null 2>&1")
 	io.write("\r\27[K")
 end

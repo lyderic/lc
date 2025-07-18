@@ -141,6 +141,9 @@ _init target="all":
 	ansible-playbook "actions/init.yml" -l {{target}}
 	echo -ne "\r\e[K"
 
+_completion:
+	@just --summary
+
 [private]
 v:
 	just --evaluate

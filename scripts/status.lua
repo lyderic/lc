@@ -28,8 +28,7 @@ end
 
 function ansiblevigilax()
 	x(f("rm -rf %s/*", cachedir))
-	printf("\27[2;36mrunning ansible on target %q...\27[m\n", target)
-	io.flush()
+	printf("\27[2;36mrunning vigilax on target %q...\27[m\n", target)
 	local luaprog = "~{{ operator }}/.justfile.d/vigilax.lua"
 	local cmd = f("ansible %q -a %q -t %q", target, luaprog, cachedir)
 	x(cmd)
