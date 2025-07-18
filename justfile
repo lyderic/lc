@@ -11,7 +11,6 @@ alias b   := backup-justfiles
 alias ua  := machinesupdate
 alias cz  := chezmoiupdate
 alias reb := reboot
-alias one := oneline
 
 _help:
 	@just --list --unsorted --alias-style left --color always \
