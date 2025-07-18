@@ -1,0 +1,24 @@
+#!/bin/bash
+
+JUSTCMD="just --justfile ${BASEDIR}/justfile"
+
+[ -x ~/.lc-init ] && source ~/.lc-init
+
+main() {
+	[ $# -eq 0 ] && usage
+	# in no scenario, $1 can start with an hyphen
+	[[ "${1}" == -* ]] && die "${1}: invalid argument"
+	# if $1 starts with ">" then it is a target
+	t="=all"
+	[[ "${1}" == \=* ]] && { t=$1 ; shift ; }
+	${JUSTCMD} t"${t}" ${@}
+}
+
+usage() {
+	echo -e "\e[1mUsage\e[m: lc [=<target>] <command>"
+	echo -e "\n\e[1mCommands\e[m:\n"
+	${JUSTCMD} _help
+	exit 0
+}
+
+main ${@}

@@ -19,7 +19,15 @@ script:
 	#!/bin/bash
 	blue "[script]"
 	mkdir -pv "${BINDIR}" 
-	echo "${script}" | tee "${BINDIR}/lc"
+	dst="${BINDIR}/lc"
+	cp -v scripts/lc "${dst}"
+	ed -s "${dst}" <<EOF
+	2a
+	BASEDIR="{{justfile_directory()}}"
+	.
+	wq
+	EOF
+	echo "(ed) BASEDIR set to {{justfile_directory()}}"
 	chmod +x -v "${BINDIR}/lc"
 
 environment:
@@ -38,9 +46,6 @@ v:
 	$yo --evaluate
 
 yo := justfile()
-
-script := '''[ -x ~/.lc-init ] && source ~/.lc-init
-just --justfile '''+justfile_directory()+'/justfile ${@}'
 
 #set dotenv-load
 set export

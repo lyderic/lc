@@ -1,13 +1,15 @@
-alias h  := _help
-alias ls := names
-alias s  := status
-alias cn := cnames
-alias gr := groups
-alias u  := connect-user
-alias rs := reset
-alias b  := backup-justfiles
-alias ua := machinesupdate
-alias cz := chezmoiupdate
+alias h   := _help
+alias ls  := names
+alias s   := status
+alias cn  := cnames
+alias gr  := groups
+alias u   := connect-user
+alias rs  := reset
+alias b   := backup-justfiles
+alias ua  := machinesupdate
+alias cz  := chezmoiupdate
+alias reb := reboot
+alias one := oneline
 
 _help:
 	@just --list --unsorted --alias-style left --color always \
@@ -56,12 +58,17 @@ ping:
 # status vigilax reporting
 [group("reporting")]
 status:
-	@./actions/status.lua -t "${t}"
+	@./scripts/status.lua -t "${t}"
 
 # update packages
 [group("actions")]
 machinesupdate:
 	ansible-playbook -v actions/machinesupdate.yml -l "${t}"
+
+# reboot
+[group("actions")]
+reboot:
+	ansible "${t}" -bom reboot
 
 # update chezmoi
 [group("actions")]
@@ -139,6 +146,7 @@ _init target="all":
 [private]
 v:
 	just --evaluate
+	echo "target=${t}"
 
 t := "all"
 
