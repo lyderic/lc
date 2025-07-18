@@ -4,6 +4,8 @@ alias s   := status
 alias cn  := cnames
 alias gr  := groups
 alias u   := connect-user
+alias r   := ruser
+alias rr  := rroot
 alias rs  := reset
 alias b   := backup-justfiles
 alias ua  := machinesupdate
@@ -41,29 +43,32 @@ cnames:
 # list groups
 [group("listing")]
 groups:
-	#!/bin/bash
-	[ "${t}" == "all" ] && {
-		ansible-inventory --list | jq 'keys' | \
-			sed '/_meta/d' | tr -d '"' | yq -P
-		exit 0
-	}
-	ansible-inventory "${t}" --graph | less -FRIX
+	#!/usr/bin/env -S lua -llee
+	target = env("t")
+	data = json.decode(ea("ansible-inventory --list"))
+	for group in pairs(data) do
+		if group == target then valid = true break end
+	end
+	if valid then
+		x(f("ansible-inventory %q --graph | less -FRIX", target))
+	else
+		printf("\27[31m%q: not a valid group\27[m\n", target)
+	end
 
 # ping pong
 [group("reporting")]
 ping:
-	@ansible-playbook "actions/ping.yml" \
-		-l "${t}"
+	ansible-playbook "actions/ping.yml" -l "${t}"
 
 # status vigilax reporting
 [group("reporting")]
 status:
-	@./scripts/status.lua -t "${t}"
+	./scripts/status.lua -t "${t}"
 
 # update packages
 [group("actions")]
 machinesupdate:
-	ansible-playbook -v actions/machinesupdate.yml -l "${t}"
+	ansible-playbook -v "actions/machinesupdate.yml" -l "${t}"
 
 # reboot
 [group("actions")]
@@ -73,19 +78,52 @@ reboot:
 # update chezmoi
 [group("actions")]
 chezmoiupdate:
-	#!/bin/bash
 	ansible "${t}" -a 'chezmoi update'
 	ansible "${t}" -ba 'chezmoi update'
 
-# one line output of <cmd>
+# run <cmd> as user (operator)
 [group("actions")]
+ruser *cmd:
+	@just t="${t}" _runcmd m $cmd
+
+# run <cmd> as root
+[group("actions")]
+rroot *cmd:
+	@just t="${t}" _runcmd bm $cmd
+
+_runcmd mod *cmd:
+	#!/usr/bin/env -S lua -llee
+	dir = "/dev/shm/oneout" ; x("rm -f "..dir.."/*")
+	execthis = "ansible {{t}} -{{mod}} shell -a '{{cmd}}' -t "..dir
+	warn("execthis="..execthis)
+	io.write("running, please wait...") io.flush()
+	x(execthis.." >/dev/null 2>&1")
+	io.write("\r\27[K")
+	hosts = {}; max = 0
+	for host in e("ls "..dir):lines() do
+		local n = string.len(host)
+		if n > max then max = n end
+		table.insert(hosts, host)
+	end
+	hformat = "\27[1m%-"..max.."."..max.."s\27[m : "
+	for _, host in ipairs(hosts) do
+		fh = io.open(dir.."/"..host)	
+		data = json.decode(fh:read("a")) fh:close()
+		printf(hformat, host)
+		firsto,firste = data.stdout_lines[1],data.stderr_lines[1]
+		if firsto then printf("\27[32m%s\27[m", firsto) end
+		if firste then printf("\27[31m%s\27[m", firste) end
+		print()
+	end
+
+# one line output of <cmd>
 oneline *cmd:
 	#!/usr/bin/env -S lua -llee
 	expression = "^(%S+) %| %S+ %| %S+=%d+ %| %(%S+%) (.+)$"
 	for line in e("ansible {{t}} -om shell -a '{{cmd}}'"):lines() do
 		if line:find("FAILED!") then
 			host = line:match("^(%S+)")
-			printf("\27[1m%-9.9s\27[m \27[31mERROR\27[m\n", host)
+			printf("\27[1m%-9.9s\27[m \27[31mERROR [%s]\27[m\n", host, line)
 		else
 			host, output = line:match(expression)
 			printf("\27[1m%-9.9s\27[m %s\n", host, output)
