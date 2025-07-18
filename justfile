@@ -84,37 +84,12 @@ chezmoiupdate:
 # run <cmd> as user (operator)
 [group("actions")]
 ruser *cmd:
-	@just t="${t}" _runcmd m $cmd
+	@./scripts/runcmd.lua "${t}" "m" ${cmd}
 
 # run <cmd> as root
 [group("actions")]
 rroot *cmd:
-	@just t="${t}" _runcmd bm $cmd
-
-_runcmd mod *cmd:
-	#!/usr/bin/env -S lua -llee
-	dir = "/dev/shm/oneout" ; x("rm -f "..dir.."/*")
-	execthis = "ansible {{t}} -{{mod}} shell -a '{{cmd}}' -t "..dir
-	warn("execthis="..execthis)
-	io.write("running, please wait...") io.flush()
-	x(execthis.." >/dev/null 2>&1")
-	io.write("\r\27[K")
-	hosts = {}; max = 0
-	for host in e("ls "..dir):lines() do
-		local n = string.len(host)
-		if n > max then max = n end
-		table.insert(hosts, host)
-	end
-	hformat = "\27[1m%-"..max.."."..max.."s\27[m : "
-	for _, host in ipairs(hosts) do
-		fh = io.open(dir.."/"..host)	
-		data = json.decode(fh:read("a")) fh:close()
-		printf(hformat, host)
-		firsto,firste = data.stdout_lines[1],data.stderr_lines[1]
-		if firsto then printf("\27[32m%s\27[m", firsto) end
-		if firste then printf("\27[31m%s\27[m", firste) end
-		print()
-	end
+	@./scripts/runcmd.lua "${t}" "bm" ${cmd}
 
 # one line output of <cmd>
 oneline *cmd:
