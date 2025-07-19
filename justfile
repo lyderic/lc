@@ -27,7 +27,7 @@ names:
 [group("reporting")]
 cnames:
 	#!/usr/bin/env -S lua -llee
-	x([[just _init "${t}"]])
+	x([[just t='{{t}}' _init]])
 	data = json.decode(ea("ansible-inventory --list --limit ${t}"))
 	for host,keys in pairs(data._meta.hostvars) do
 		fh = io.open("/tmp/ansible_facts/"..host)
@@ -109,9 +109,9 @@ rroot *cmd:
 [group("actions")]
 connect-user host:
 	#!/usr/bin/env -S lua -llee
-	x("lc _init {{host}}")
+	x("lc t='{{host}}' _init")
 	fh = io.open("/tmp/ansible_facts/{{host}}")
-	if not fh then print("invalid host!") io.exit(1) end
+	if not fh then print("\27[31minvalid host!\27[m") os.exit(1) end
 	data = json.decode(fh:read("*a"))
 	fh:close()
 	vtype = data.ansible_virtualization_type
