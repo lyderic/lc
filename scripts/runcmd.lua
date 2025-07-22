@@ -28,22 +28,50 @@ function main()
 end
 
 function display()
-	hosts = {}; max = 0
+	local all = {}
+	local multi = false
 	for host in e("ls "..dir):lines() do
-		local n = string.len(host)
+		local combined = {}
+		combined.host = host
+		local fh = io.open(dir.."/"..host)	
+		local data = json.decode(fh:read("a")) fh:close()
+		combined.lines = extract_and_colorize(data)
+		if #combined.lines > 1 then multi = true end
+		table.insert(all, combined)
+	end
+	if multi then display_multiline(all) else display_oneline(all) end
+end
+
+function display_multiline(inputs)
+	for _,input in ipairs(inputs) do
+		header(input.host, "\27[4m")
+		print(table.concat(input.lines, "\n"))
+	end
+end
+
+function display_oneline(inputs)
+	-- computing longest host name
+	local max = 0
+	for _,input in ipairs(inputs) do
+		local n = string.len(input.host)
 		if n > max then max = n end
-		table.insert(hosts, host)
 	end
-	hformat = "\27[1m%-"..max.."."..max.."s\27[m : "
-	for _, host in ipairs(hosts) do
-		fh = io.open(dir.."/"..host)	
-		data = json.decode(fh:read("a")) fh:close()
-		printf(hformat, host)
-		firsto,firste = data.stdout_lines[1],data.stderr_lines[1]
-		if firsto then printf("\27[32m%s\27[m", firsto) end
-		if firste then printf("\27[31m%s\27[m", firste) end
-		print()
+	local hformat = "\27[1m%-"..max.."."..max.."s\27[m : "
+	for _,input in ipairs(inputs) do
+		printf(hformat, input.host)
+		print(input.lines[1])
 	end
+end
+
+function extract_and_colorize(data)
+	local combined_lines = {}
+	for _,line in ipairs(data.stdout_lines) do
+		table.insert(combined_lines, "\27[32m"..line.."\27[m")
+	end
+	for _,line in ipairs(data.stderr_lines) do
+		table.insert(combined_lines, "\27[31m[ERR] "..line.."\27[m")
+	end
+	return combined_lines
 end
 
 main()

@@ -1,6 +1,7 @@
 -- global constants
 lcluaversion = "20250722-0"
 lccache = "/dev/shm/lc"
+width = eo("tput cols")
 
 -- environment variables
 -- these lib is used by scripts that are called from 'lc', i.e. a
@@ -41,6 +42,11 @@ function ansible(d)
 		target, d.mode, d.module, d.args, d.output)
 	if not verbose then cmd = cmd.." >/dev/null 2>&1" end
 	return x(cmd)
+end
+
+function header(message, ansicolor)
+	if not ansicolor then ansicolor = "\27[1;7m" end
+	printf(ansicolor.."%-"..width.."."..width.."s\27[m", message)
 end
 
 function die(message)
