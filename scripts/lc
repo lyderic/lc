@@ -7,8 +7,13 @@ JUSTCMD="just --justfile ${BASEDIR}/justfile"
 main() {
 	[ $# -eq 0 ] && usage
 	# in no scenario, $1 can start with an hyphen
-	[[ "${1}" == -* ]] && die "${1}: invalid argument"
-	# if $1 starts with ">" then it is a target
+	# except for help
+	#[[ "${1}" == -* ]] && die "${1}: invalid argument"
+	case "${1}" in
+		-h|--help|help) usage ;;
+		-*) die "${1}: invalid argument" ;; 
+	esac
+	# if $1 starts with "=" then it is a target
 	t="=all"
 	[[ "${1}" == \=* ]] && { t=$1 ; shift ; }
 	${JUSTCMD} t"${t}" ${@}

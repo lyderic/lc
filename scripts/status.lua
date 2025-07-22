@@ -1,42 +1,22 @@
 #!/usr/bin/env -S lua -llee -W
 
--- constants
-cachettl = 60*60 -- minutes*seconds
-basedir = "/dev/shm/vigilax"
-cachedir = basedir.."/cache"
-ocache = {} -- objects cache
-target = "all" -- default target
+-- include lclib
+local curdir = eo(f("dirname %q", arg[0]))
+package.path = package.path..";"..curdir.."/?.lua"
+require "lclib"
 
 function main()
-	local opts = getopt("t")
-	if opts.h then usage() return end
-	target = opts.t and opts.t or target
-	cache()
-	report()
+	io.write("\27[2mrunning ansible to ")
+	printf("get vigilax data from target %q, please wait...", target)
+	io.flush()
+	local ocache = ansiblevigilax()
+	io.write("\r\27[K\27[m")
+	report(ocache)
 end
 
-function cache()
-	ansiblevigilax()
-	for host in e("ls "..cachedir):lines() do
-		local path = cachedir.."/"..host
-		local fh = io.open(path)
-		local data = json.decode(fh:read("*a")) fh:close()
-		local info = json.decode(data.stdout)
-		ocache[host] = info
-	end
-end
-
-function ansiblevigilax()
-	x(f("rm -rf %s/*", cachedir))
-	printf("\27[2;36mrunning vigilax on target %q...\27[m\n", target)
-	local luaprog = "~{{ operator }}/.justfile.d/vigilax.lua"
-	local cmd = f("ansible %q -a %q -t %q", target, luaprog, cachedir)
-	x(cmd)
-end
-
-function report()
+function report(ocache)
 	local n = 0
-	local mut, mup, mts = 30, 10, cachettl
+	local mut, mup = 30, 10
 	for host, m in pairs(ocache) do
 		n = n + 1
 		if m.secondsup > mut*24*3600 then
@@ -44,12 +24,6 @@ function report()
 		end
 		if m.updates > mup then
 			printf("%s updates: %d\n", host, m.updates)
-		end
-		local over = os.time() - m.timestamp - mts
-		if over > 0 then
-			local ttlsec = cachettl / 60
-			printf("%s status is more than %.0f minute%s old (%ds over)\n",
-				host, ttlsec, ttlsec > 1 and "s" or "", over)
 		end
 		if m.reboot == true then
 			printf("reboot due on %s\n", host)

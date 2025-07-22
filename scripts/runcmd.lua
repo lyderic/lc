@@ -1,29 +1,30 @@
 #!/usr/bin/env -S lua -llee -W
 
-local taco = table.concat
+-- include lclib
+local curdir = eo(f("dirname %q", arg[0]))
+package.path = package.path..";"..curdir.."/?.lua"
+require "lclib"
 
--- constants
-local dir = "/dev/shm/oneout"
-
-function init()
-	x("rm -rf "..dir)
-end
+-- directory where output of command will go
+local dir = lccache.."/runcmd"
 
 function main()
-	init()
-	local target, mode = arg[1], arg[2]
+	local mode = arg[1]
+	if not mode == "m" or not mode == "bm" then
+		die("--runcmd-- invalid mode: %q", mode)
+	end
 	local t = {}
-	table.move(arg, 3, #arg, 1, t)
-	local ansible = f("ansible %q -%s shell -a '%s' -t %q",
-		target, mode, taco(t, " "), dir)
-	execansible(ansible)
-	display()
-end
-
-function execansible(ansible)
+	table.move(arg, 2, #arg, 1, t)
+	local definition = {
+		mode = mode,
+		module = "shell",
+		args = table.concat(t, " "),
+		output = dir,
+	}
 	io.write("\27[2;36mrunning, please wait...\27[m") io.flush()
-	x(ansible.." >/dev/null 2>&1")
+	ansible(definition)
 	io.write("\r\27[K")
+	display()
 end
 
 function display()
