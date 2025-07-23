@@ -44,7 +44,7 @@ end
 
 function display_multiline(inputs)
 	for _,input in ipairs(inputs) do
-		header(input.host, "\27[4m")
+		header(input.host, "\27[1;4;97m")
 		print(table.concat(input.lines, "\n"))
 	end
 end

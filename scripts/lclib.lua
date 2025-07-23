@@ -44,9 +44,10 @@ function ansible(d)
 	return x(cmd)
 end
 
-function header(message, ansicolor)
-	if not ansicolor then ansicolor = "\27[1;7m" end
-	printf(ansicolor.."%-"..width.."."..width.."s\27[m", message)
+function header(message, decoration)
+	if tonumber(width) > 99 then width = 99 end
+	if not decoration then decoration = "\27[1;7m" end
+	printf(decoration.."%-"..width.."."..width.."s\27[m\n", message)
 end
 
 function die(message)
