@@ -61,7 +61,7 @@ ping:
 # status vigilax reporting
 [group("reporting")]
 status:
-	@./scripts/status.lua
+	@lua ./scripts/status.lua
 
 # show info 
 [group("reporting")]
@@ -103,12 +103,12 @@ chezmoiupdate:
 # run <cmd> as user (operator)
 [group("actions")]
 ruser *cmd:
-	@./scripts/runcmd.lua "m" ${cmd}
+	@lua ./scripts/runcmd.lua "m" ${cmd}
 
 # run <cmd> as root
 [group("actions")]
 rroot *cmd:
-	@./scripts/runcmd.lua "bm" ${cmd}
+	@lua ./scripts/runcmd.lua "bm" ${cmd}
 
 # connect as uid 1000
 [group("actions")]
@@ -168,6 +168,8 @@ v:
 t := "all"
 
 LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
+LC_PLAYBOOK_DIR := justfile_directory() / "actions"
+LC_SCRIPTS_DIR := justfile_directory() / "scripts"
 
 set dotenv-load
 set export

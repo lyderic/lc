@@ -1,8 +1,3 @@
-#!/usr/bin/env -S lua -llee -W
-
--- include lclib
-local curdir = eo(f("dirname %q", arg[0]))
-package.path = package.path..";"..curdir.."/?.lua"
 require "lclib"
 
 -- directory where output of command will go

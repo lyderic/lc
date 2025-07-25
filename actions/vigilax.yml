@@ -10,10 +10,10 @@
         state: directory
       delegate_to: localhost
       run_once: true
-    - name: produce report
+    - name: produce vigilax report
       command: "~{{ operator }}/.justfile.d/vigilax.lua"
       register: script_output
-    - name: write stdout
+    - name: vigilax and facts in combined output
       copy:
         dest: "{{ cachedir }}/{{ inventory_hostname }}"
         content: '{"vigilax":{{ script_output.stdout }},"ansible_facts":{{ansible_facts|to_json}}}'
