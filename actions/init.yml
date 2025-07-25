@@ -1,2 +1,19 @@
-- name: gathering facts
+- name: gather and cache facts
   hosts: all
+
+  vars:
+    cachedir: /dev/shm/lc/setu
+
+  tasks:
+    - name: Make sure cachedir exists
+      file:
+        path: "{{ cachedir }}"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: Dump facts host by host in cachedir
+      copy:
+        dest: "{{ cachedir }}/{{ inventory_hostname }}"
+        content: '{"ansible_facts": {{ ansible_facts | to_json }}}'
+      delegate_to: localhost

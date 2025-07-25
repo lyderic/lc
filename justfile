@@ -25,13 +25,12 @@ names:
 
 # list names with remotes
 [group("reporting")]
-cnames: _init
+cnames: 
 	#!/usr/bin/env -S lua -llee
-	data = json.decode(ea("ansible-inventory --list --limit ${t}"))
+	cmd = "ansible-inventory --list --limit '{{t}}'"
+	data = json.decode(ea(cmd))
 	for host,keys in pairs(data._meta.hostvars) do
-		fh = io.open("/tmp/ansible_facts/s1_"..host)
-		local details = json.decode(fh:read("*a")) ; fh:close()
-		local chost = host
+		chost = host
 		if keys.ansible_connection == "community.general.incus" then
 			remote = keys.ansible_incus_remote or "local"
 			chost = f("%s:%s", remote, host)
@@ -115,16 +114,13 @@ rroot *cmd:
 [group("actions")]
 connect-user host:
 	#!/usr/bin/env -S lua -llee
-	x("lc ='{{host}}' _init")
-	fh = io.open("/tmp/ansible_facts/s1_{{host}}")
-	if not fh then print("\27[31minvalid host!\27[m") os.exit(1) end
-	data = json.decode(fh:read("*a"))
-	fh:close()
-	vtype = data.ansible_virtualization_type
-	if vtype == "lxc" then
-		x(f("incus exec %s -- su - unix", eo("lc ={{host}} cnames")))
+	host = "{{host}}"
+	data = json.decode(ea("ansible-inventory --host "..host))
+	remote = data.ansible_incus_remote
+	if remote then
+		x(f("incus exec %s:%s -- su - unix", remote, host))
 	else
-		x("ssh {{host}}")
+		x("ssh "..host)
 	end
 
 # run coc, possibly with password
@@ -152,15 +148,7 @@ backup-justfiles:
 # remove cached facts and ansible outputs
 [group("actions")]
 reset:
-	#!/usr/bin/env -S lua -llee
-	require "lclib"
-	caches = {
-		eo("awk '/^fact_caching_connection/ {print $3}' $ANSIBLE_CONFIG"),
-		lccache,
-	}
-	for _,cache in ipairs(caches) do
-		x(f("rm -rvf %s/*", cache))
-	end
+	rm -rvf /tmp/ansible_facts /dev/shm/lc
 
 _init:
 	#!/bin/bash

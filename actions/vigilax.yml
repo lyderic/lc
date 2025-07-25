@@ -1,10 +1,20 @@
 - name: vigilax
   hosts: all
+  vars:
+    cachedir: /dev/shm/lc/viou
+
   tasks:
+    - name: Make sure cachedir exists
+      file:
+        path: "{{ cachedir }}"
+        state: directory
+      delegate_to: localhost
+      run_once: true
     - name: produce report
       command: "~{{ operator }}/.justfile.d/vigilax.lua"
       register: script_output
-    - name: show output
-      debug:
-        var: script_output.stdout
-        #msg: "distro: {{ (script_output.stdout|from_json).distro }}"
+    - name: write stdout
+      copy:
+        dest: "{{ cachedir }}/{{ inventory_hostname }}"
+        content: '{"vigilax":{{ script_output.stdout }},"ansible_facts":{{ansible_facts|to_json}}}'
+      delegate_to: localhost
