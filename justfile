@@ -29,7 +29,7 @@ cnames: _init
 	#!/usr/bin/env -S lua -llee
 	data = json.decode(ea("ansible-inventory --list --limit ${t}"))
 	for host,keys in pairs(data._meta.hostvars) do
-		fh = io.open("/tmp/ansible_facts/"..host)
+		fh = io.open("/tmp/ansible_facts/s1_"..host)
 		local details = json.decode(fh:read("*a")) ; fh:close()
 		local chost = host
 		if keys.ansible_connection == "community.general.incus" then
@@ -116,13 +116,13 @@ rroot *cmd:
 connect-user host:
 	#!/usr/bin/env -S lua -llee
 	x("lc ='{{host}}' _init")
-	fh = io.open("/tmp/ansible_facts/{{host}}")
+	fh = io.open("/tmp/ansible_facts/s1_{{host}}")
 	if not fh then print("\27[31minvalid host!\27[m") os.exit(1) end
 	data = json.decode(fh:read("*a"))
 	fh:close()
 	vtype = data.ansible_virtualization_type
 	if vtype == "lxc" then
-		x(f("incus exec %s -- su - unix", eo("lc t={{host}} cnames")))
+		x(f("incus exec %s -- su - unix", eo("lc ={{host}} cnames")))
 	else
 		x("ssh {{host}}")
 	end
