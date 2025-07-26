@@ -3,22 +3,23 @@ require "lee"
 -- global constants
 lcluaversion = "20250725-0"
 lccache = "/dev/shm/lc"
-width = eo("tput cols")
+width = tonumber(eo("tput cols"))
 
 -- environment variables
 -- this lib is used by scripts that are called from 'lc', i.e. a
 -- justfile that should always provide 'target'
 -- run: 'lc v'
 target = os.getenv("t") or "--unset--"
-pbdir = env("LC_PLAYBOOK_DIR") or "--unset--"
-scriptsdir = env("LC_SCRIPTS_DIR") or "--unset--"
+pbdir = env("LC_PLAYBOOKS_DIR") or "--unset--"
 
 -- get vigilax and facts as a lua table
 function vigifacts()
-	ansibleplay("vigilax.yml")
+	local dir = f("%s/%s", lccache, "vigifacts")
+	x(f("rm -rf %s/*", dir))
+	ansibleplay("vigifacts.yml")
 	local ocache = {}
-	for host in e("ls /dev/shm/lc/viou"):lines() do
-		local fh = io.open("/dev/shm/lc/viou/"..host)
+	for host in e("ls "..dir):lines() do
+		local fh = io.open(f("%s/%s", dir, host))
 		local data = json.decode(fh:read("a")) fh:close()
 		ocache[host] = data
 	end
@@ -26,8 +27,30 @@ function vigifacts()
 end
 
 function ansibleplay(pbook)
-	local path = pbdir.."/"..pbook
+	local path = f("%s/%s", pbdir, pbook)
 	x(f("ansible-playbook %q -l %q", path, target))
+end
+
+-- run a playbook, get output as json.
+-- if envar "LC_PERSIST" is set, then output is also saved to lccache
+function pbjson(pbook, persist)
+	printf("\27[2mplaying %q on target %q, please wait...",
+		pbook, target)
+	local path = f("%s/%s", pbdir, pbook)
+	local outplug = "ANSIBLE_STDOUT_CALLBACK=ansible.posix.json"
+	local cmd = f("%s ansible-playbook %q -l %q", outplug, path, target)
+	local jsonoutput = ea(cmd)
+	if env("LC_PERSIST") then
+		local fh = io.open(f("%s/%s", lccache, pbook..".json"), "w")
+		fh:write(jsonoutput) fh:close()
+	end
+	io.write("\r\27[K\27[m")
+	return jsonoutput
+end
+
+-- run a playbook, get output as a lua table
+function pblua(pbook)
+	return json.decode(pbjson(pbook))
 end
 
 -- run 'vigilax' on hosts and return a lua table of concatenated json

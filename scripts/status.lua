@@ -1,16 +1,12 @@
 require "lclib"
 
 function main()
-	io.write("\27[2mrunning ansible to ")
-	printf("get vigilax data from target %q, please wait...", target)
-	io.flush()
-	--local ocache = ansiblevigilax()
 	local ocache = vigifacts()
-	io.write("\r\27[K\27[m")
 	report(ocache)
 end
 
 function report(ocache)
+	print("LC REPORT "..string.rep("*", width - 10))
 	local n = 0
 	local mut, mup = 30, 10
 	for host, data in pairs(ocache) do
@@ -30,7 +26,7 @@ function report(ocache)
 				(m.nproc / 2), host)
 		end
 	end
-	printf("\27[2;33m%d host%s processed\27m\n", n, n > 1 and "s" or "")
+	printf("\27[33m%d host%s processed\27m\n", n, n > 1 and "s" or "")
 end
 
 main()

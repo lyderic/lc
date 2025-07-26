@@ -161,6 +161,9 @@ _init:
 _completion:
 	@just --summary
 
+echoo:
+	@lua scripts/echoo.lua
+
 [private]
 v:
 	just --evaluate
@@ -168,7 +171,7 @@ v:
 t := "all"
 
 LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
-LC_PLAYBOOK_DIR := justfile_directory() / "actions"
+LC_PLAYBOOKS_DIR := justfile_directory() / "actions"
 LC_SCRIPTS_DIR := justfile_directory() / "scripts"
 
 set dotenv-load
