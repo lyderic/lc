@@ -1,16 +1,15 @@
 require "lclib"
 
 function main()
-	local ocache = vigifacts()
-	report(ocache)
+	local ocache = pblua("vigilax.yml")
+	report(ocache.plays[1].tasks[1].hosts)
 end
 
 function report(ocache)
-	print("LC REPORT "..string.rep("*", width - 10))
 	local n = 0
 	local mut, mup = 30, 10
 	for host, data in pairs(ocache) do
-		local m = data.vigilax
+		local m = json.decode(data.stdout)
 		n = n + 1
 		if m.secondsup > mut*24*3600 then
 			printf("%s uptime: %s\n", host, m.uptime)
@@ -26,7 +25,7 @@ function report(ocache)
 				(m.nproc / 2), host)
 		end
 	end
-	printf("\27[33m%d host%s processed\27m\n", n, n > 1 and "s" or "")
+	printf("\27[2;33m%d host%s processed\27m\n", n, n > 1 and "s" or "")
 end
 
 main()

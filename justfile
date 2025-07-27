@@ -161,8 +161,8 @@ _init:
 _completion:
 	@just --summary
 
-echoo:
-	@lua scripts/echoo.lua
+test:
+	@lua scripts/test.lua
 
 [private]
 v:

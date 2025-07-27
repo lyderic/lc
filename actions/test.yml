@@ -1,0 +1,13 @@
+- name: testing a playbook with multiple plays
+  hosts: all
+  tasks:
+    - name: daping
+      ping:
+
+- name: testing a play with multiple tasks
+  hosts: all
+  tasks:
+    - name: get uptime
+      command: uptime --pretty
+    - name: get date
+      command: date

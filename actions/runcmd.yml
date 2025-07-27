@@ -1,0 +1,9 @@
+- name: runcmd
+  hosts: all
+  vars:
+    cli: '{{ cli }}'
+  tasks:
+    - name: runcmd on dat host
+      shell:
+      args:
+        cmd: '{{ cli }}'

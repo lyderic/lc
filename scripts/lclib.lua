@@ -12,6 +12,9 @@ width = tonumber(eo("tput cols"))
 target = os.getenv("t") or "--unset--"
 pbdir = env("LC_PLAYBOOKS_DIR") or "--unset--"
 
+-- make sure lccache directory is created, always
+x("mkdir -pv "..lccache)
+
 -- get vigilax and facts as a lua table
 function vigifacts()
 	local dir = f("%s/%s", lccache, "vigifacts")
@@ -32,19 +35,22 @@ function ansibleplay(pbook)
 end
 
 -- run a playbook, get output as json.
--- if envar "LC_PERSIST" is set, then output is also saved to lccache
-function pbjson(pbook, persist)
-	printf("\27[2mplaying %q on target %q, please wait...",
-		pbook, target)
+-- if envar "DEBUG" is set, then output is also saved to lccache
+function pbjson(pbook)
+	io.stderr:write(f("\27[2mplaying %q on target %q, please wait...",
+		pbook, target))
 	local path = f("%s/%s", pbdir, pbook)
 	local outplug = "ANSIBLE_STDOUT_CALLBACK=ansible.posix.json"
-	local cmd = f("%s ansible-playbook %q -l %q", outplug, path, target)
+	local cmd = f("%s ansible-playbook %q -l %q",
+		outplug,
+		path,
+		target)
 	local jsonoutput = ea(cmd)
-	if env("LC_PERSIST") then
+	if env("DEBUG") then
 		local fh = io.open(f("%s/%s", lccache, pbook..".json"), "w")
 		fh:write(jsonoutput) fh:close()
 	end
-	io.write("\r\27[K\27[m")
+	io.stderr:write("\r\27[K\27[m")
 	return jsonoutput
 end
 
