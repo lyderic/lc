@@ -109,6 +109,7 @@ rroot *cmd:
 	@lua ./scripts/runcmd.lua "bm" ${cmd}
 
 # run script as user (operator)
+[group("actions")]
 rscript:
 	#!/bin/bash
 	[ -f ~/.cache/vim/swap/%dev%shm%lc%lc_script.swp ] || {
@@ -168,8 +169,8 @@ _init:
 _completion:
 	@just --summary
 
-test:
-	@lua scripts/test.lua
+#test:
+#	@lua scripts/test.lua
 
 [private]
 v:
