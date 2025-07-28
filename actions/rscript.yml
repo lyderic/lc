@@ -1,0 +1,15 @@
+---
+- name: script
+  hosts: all
+  tasks:
+#    - name: run script on da host
+#      script: /dev/shm/lc/lc_script
+    - name: copy script to remote
+      copy:
+        src: /dev/shm/lc/lc_script
+        dest: /dev/shm/lc_script
+        owner: "{{ operator }}"
+        group: "{{ operator }}"
+        mode: 0755
+    - name: execute script
+      shell: /dev/shm/lc_script

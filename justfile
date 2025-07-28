@@ -68,16 +68,14 @@ status:
 info:
 	#!/usr/bin/env -S lua -llee
 	require "lclib"
-	ins = table.insert
-	io.write("\27[2macquiring vigilax data from ")
-	printf("target %q, please wait...", target) ; io.flush()
-	ocache = ansiblevigilax()
-	io.write("\r\27[K\27[m") ; io.flush()
-	lines = { "Host,Nproc,Distribution,Updates,Uptime,Avg" }
-	for host,info in pairs(ocache) do
-		ins(lines, f([["%s","%s","%s","%s,%s,%s"]],
-			host, info.nproc,info.distro, info.updates,info.uptime, info.loadavg)
-		)
+	local ocache = pblua("vigilax.yml")
+	hosts = ocache.plays[1].tasks[1].hosts
+	lines = { "Host,uproc,Distribution,Updates,Uptime,Avg" }
+	for host,data in pairs(hosts) do
+		info = json.decode(data.stdout)
+		table.insert(lines, f([["%s","%s","%s","%s,%s,%s"]],
+			host, info.nproc,info.distro, info.updates,
+			info.uptime, info.loadavg))
 	end
 	x(f([[echo "%s" | xan view -pIM]], table.concat(lines, "\n")))
 
@@ -109,6 +107,15 @@ ruser *cmd:
 [group("actions")]
 rroot *cmd:
 	@lua ./scripts/runcmd.lua "bm" ${cmd}
+
+# run script as user (operator)
+rscript:
+	#!/bin/bash
+	[ -f ~/.cache/vim/swap/%dev%shm%lc%lc_script.swp ] || {
+		vim /dev/shm/lc/lc_script
+		chmod +x /dev/shm/lc/lc_script
+	}
+	lua ./scripts/rscript.lua | less -FRIX
 
 # connect as uid 1000
 [group("actions")]

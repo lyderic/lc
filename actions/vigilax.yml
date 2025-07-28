@@ -1,3 +1,7 @@
+---
+# run it like this to get json on stdout that can be exploited with
+# e.g. lua:
+# $ ANSIBLE_STDOUT_CALLBACK=ansible.posix.json ansible-playbook ...
 - name: vigilax
   hosts: all
   tasks:
