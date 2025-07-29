@@ -2,7 +2,7 @@ require "lclib"
 
 function main()
 	local ocache = pblua("vigilax.yml")
-	report(ocache.plays[1]tasks[1].hosts)
+	report(ocache.plays[1].tasks[1].hosts)
 end
 
 function report(ocache)
