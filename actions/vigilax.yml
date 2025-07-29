@@ -4,6 +4,7 @@
 # $ ANSIBLE_STDOUT_CALLBACK=ansible.posix.json ansible-playbook ...
 - name: vigilax
   hosts: all
+  gather_facts: false
   tasks:
     - name: produce vigilax report
       command: "~{{ operator }}/.justfile.d/vigilax.lua"

@@ -2,12 +2,7 @@ require "lclib"
 
 function main()
 	local ocache = pblua("vigilax.yml")
-	local tasks = ocache.plays[1].tasks
-	-- There is only one task in the play, however if the playbook is
-	-- played for the first time (no facts yet), ansible adds a task #1
-	-- called "Gathering Facts" and the vigilax task becomes #2
-	local n = #tasks == 1 and 1 or 2
-	report(tasks[n].hosts)
+	report(ocache.plays[1]tasks[1].hosts)
 end
 
 function report(ocache)
