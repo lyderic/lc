@@ -21,7 +21,7 @@ main() {
 
 usage() {
 	echo -e "\e[1mUsage\e[m: lc [=<target>] <command>"
-	echo -e "\n\e[1mCommands\e[m:\n"
+	echo -e "\e[1m Commands\e[m:"
 	${JUSTCMD} _help
 	exit 0
 }

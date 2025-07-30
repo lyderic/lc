@@ -16,7 +16,7 @@ alias reb := reboot
 _help:
 	@just --list --unsorted --alias-style left --color always \
 		--list-heading='' --list-prefix=' ' \
-		| sed -e 's/alias: //'
+		| sed -e 's/alias: //' | awk 'NF'
 
 # list names
 [group("reporting")]
@@ -156,7 +156,7 @@ backup-justfiles:
 # remove cached facts and ansible outputs
 [group("actions")]
 reset:
-	rm -rvf /tmp/ansible_facts /dev/shm/lc
+	rm -rvf /tmp/ansible_facts/* /dev/shm/lc/*
 
 _init:
 	#!/bin/bash
