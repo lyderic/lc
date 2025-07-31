@@ -1,0 +1,25 @@
+---
+- name: show relevant facts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: vigilax
+      command: "~{{operator}}/.justfile.d/vigilax.lua"
+      register: vigilax_output
+    - name: set vigilax
+      set_fact:
+        vigilax: "{{vigilax_output.stdout}}"
+        cacheable: yes
+    - name: facts
+      debug:
+        msg: '{{vigilax | from_json}}'
+
+#        msg: '{ 
+#          "secondsup": "{{ansible_uptime_seconds}}",
+#          "distro": "{{ansible_distribution}}",
+#          "virt": "{{ansible_virtualization_type}}",
+#          "kernel": "{{ansible_kernel}}",
+#          "hostname": "{{ansible_hostname}}",
+#          "loadavg": "{{ansible_loadavg}}",
+#          "vigilax": "{{vigilax}}"
+#        }'
