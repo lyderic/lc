@@ -87,7 +87,7 @@ machinesupdate:
 # reboot
 [group("actions")]
 reboot:
-	@ansible "${t}" -bom reboot
+	@ansible "${t}" -bm reboot
 
 # update chezmoi
 [group("actions")]
