@@ -2,7 +2,7 @@
 
 JUSTCMD="just --justfile ${BASEDIR}/justfile"
 
-[ -x ~/.lc-init ] && source ~/.lc-init
+[ -f ~/.lc-init ] && source ~/.lc-init
 
 main() {
 	[ $# -eq 0 ] && usage

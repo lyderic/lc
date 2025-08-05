@@ -1,3 +1,7 @@
+---
+
+# backup justfiles and associated files (.env, .aqui)
+
 - name: justfile backup
   hosts: all
   tasks:
@@ -6,3 +10,23 @@
         src: "~{{ operator }}/justfile"
         dest: "~/repositories/justfiles/{{ ansible_host }}/justfile"
         flat: yes
+    - name: test if .aqui exist
+      stat:
+        path: "~{{ operator }}/.aqui"
+      register: aqui_stat
+    - name: fetch .aqui
+      fetch:
+        src: "~{{ operator }}/.aqui"
+        dest: "~/repositories/justfiles/{{ ansible_host }}/.aqui"
+        flat: yes
+      when: aqui_stat.stat.exists
+    - name: test if .env exist
+      stat:
+        path: "~{{ operator }}/.env"
+      register: env_stat
+    - name: fetch .env
+      fetch:
+        src: "~{{ operator }}/.env"
+        dest: "~/repositories/justfiles/{{ ansible_host }}/.env"
+        flat: yes
+      when: env_stat.stat.exists
