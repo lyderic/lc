@@ -147,11 +147,7 @@ coc:
 # backup justfiles, .aqui and .env
 [group("actions")]
 justfiles-backup:
-	#!/bin/bash
-	pbook="actions/justfilesbackup.yml"
-	ansible-playbook "${pbook}" -l "${t}" && {
-		ok "${t} justfiles saved in ~/repositories/justfiles"
-	}
+	@lua scripts/justfiles-backup.lua
 
 # remove cached facts and ansible outputs
 [group("actions")]
@@ -182,7 +178,11 @@ LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
 LC_PLAYBOOKS_DIR := justfile_directory() / "actions"
 LC_SCRIPTS_DIR := justfile_directory() / "scripts"
 
-set dotenv-load
+# Set these variables in .env file. They are mandatory
+JUSTFILES_REPOSITORY := env("JUSTFILES_REPOSITORY", "--unset--")
+GPGKEY := env("GPGKEY", "--unset--")
+
+set dotenv-required
 set export
 set shell := ["bash","-uc"]
 # vim: ft=just
