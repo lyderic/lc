@@ -58,15 +58,14 @@ function fetch()
 		if #changes > 0 then
 			printf("%s: %s\n", host, table.concat(changes, " "))
 		end
-		--[[
-		if not hFetchAqui[host].skipped then
-			printf(".aqui changed: %s\n", hFetchAqui[host].changed)
-		end
-		if not hFetchEnv[host].skipped then
-			printf(".env changed: %s\n", hFetchEnv[host].changed)
-		end
-		--]]
 	::next:: end
+	--[[
+	for host,m in pairs(ocache.stats) do
+		printf("%-10.10s: ", host)
+		for k,v in pairs(m) do printf("%s:%d ", k, v) end
+		print()
+	end
+	--]]
 end
 
 function envencrypt()
