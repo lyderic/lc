@@ -8,7 +8,7 @@ alias u   := connect-user
 alias r   := ruser
 alias rr  := rroot
 alias rs  := reset
-alias b   := backup-justfiles
+alias b   := justfiles-backup
 alias ua  := machinesupdate
 alias cz  := chezmoiupdate
 alias reb := reboot
@@ -144,9 +144,9 @@ coc:
 	}
 	ansible coc -a coc
 
-# backup justfiles
+# backup justfiles, .aqui and .env
 [group("actions")]
-backup-justfiles:
+justfiles-backup:
 	#!/bin/bash
 	pbook="actions/justfilesbackup.yml"
 	ansible-playbook "${pbook}" -l "${t}" && {
