@@ -5,26 +5,26 @@
 - name: justfile backup
   hosts: all
   tasks:
-    - name: fetch justfile
+    - name: FetchJustfile
       fetch:
         src: "~{{ operator }}/justfile"
         dest: "~/repositories/justfiles/{{ ansible_host }}/justfile"
         flat: yes
-    - name: test if .aqui exist
+    - name: TestAquiExists
       stat:
         path: "~{{ operator }}/.aqui"
       register: aqui_stat
-    - name: fetch .aqui
+    - name: FetchAqui
       fetch:
         src: "~{{ operator }}/.aqui"
         dest: "~/repositories/justfiles/{{ ansible_host }}/.aqui"
         flat: yes
       when: aqui_stat.stat.exists
-    - name: test if .env exist
+    - name: TestEnvExists
       stat:
         path: "~{{ operator }}/.env"
       register: env_stat
-    - name: fetch .env
+    - name: FetchEnv
       fetch:
         src: "~{{ operator }}/.env"
         dest: "~/repositories/justfiles/{{ ansible_host }}/.env"

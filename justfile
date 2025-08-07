@@ -147,7 +147,7 @@ coc:
 # backup justfiles, .aqui and .env
 [group("actions")]
 justfiles-backup:
-	@lua scripts/justfiles-backup.lua
+	@lua scripts/justfilesbackup.lua
 
 # remove cached facts and ansible outputs
 [group("actions")]
