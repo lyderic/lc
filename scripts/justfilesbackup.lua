@@ -17,55 +17,7 @@ function init()
 end
 
 function fetch()
-	local ocache = {}
-	local cache = "/dev/shm/lc/justfilesbackup.yml.json"
-	if abs(cache) then
-		printf("\27[33musing debug cache %q\n", cache)
-		local fh = io.open(cache)
-		ocache = json.decode(fh:read("a")) fh:close()
-	else
-		ocache = pblua("justfilesbackup.yml")
-	end
-	local tasks = ocache.plays[1].tasks -- there's only one play
-	for n,task in ipairs(tasks) do
-		local name = task.task.name
-		if name == "FetchJustfile" then hFetchJustfile = task.hosts
-		elseif name == "FetchAqui" then hFetchAqui = task.hosts
-		elseif name == "FetchEnv" then hFetchEnv = task.hosts end
-	end
-	for host,m in pairs(ocache.stats) do
-		local changes = {}
-		if hFetchJustfile[host].changed then
-			table.insert(changes, "justfile")
-		end
-		if hFetchAqui[host].changed then
-			table.insert(changes, ".aqui")
-		end
-		if not hFetchEnv[host].skipped then
-			local gpgfile = f("%s/%s/.env.gpg",
-				env("JUSTFILES_REPOSITORY"), host)
-			if abs(gpgfile) then
-				local denvsum = hFetchEnv[host].md5sum
-				local eenvsum = eo(f("gpg -d %q | md5sum | awk '{print$1}'",
-					gpgfile))
-				if denvsum ~= eenvsum then
-					table.insert(changes, ".env")
-				end
-			else
-				table.insert(changes, ".env")
-			end
-		end
-		if #changes > 0 then
-			printf("%s: %s\n", host, table.concat(changes, " "))
-		end
-	::next:: end
-	--[[
-	for host,m in pairs(ocache.stats) do
-		printf("%-10.10s: ", host)
-		for k,v in pairs(m) do printf("%s:%d ", k, v) end
-		print()
-	end
-	--]]
+	ocache = pblua("justfilesbackup.yml")
 end
 
 function envencrypt()

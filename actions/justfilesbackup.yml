@@ -4,29 +4,28 @@
 
 - name: justfile backup
   hosts: all
+  vars:
+    dotfiles:
+      - "~{{ operator }}/.env"
+      - "~{{ operator }}/.aqui"
+      - "~{{ operator }}/.workstation"
+      - "~{{ operator }}/.ssh/config"
+
   tasks:
     - name: FetchJustfile
       fetch:
         src: "~{{ operator }}/justfile"
         dest: "~/repositories/justfiles/{{ ansible_host }}/justfile"
         flat: yes
-    - name: TestAquiExists
+    - name: TestDotfilesExist
       stat:
-        path: "~{{ operator }}/.aqui"
-      register: aqui_stat
-    - name: FetchAqui
+        path: "{{ item }}"
+      register: file_stat
+      loop: "{{ dotfiles }}"
+    - name: FetchDotFiles
       fetch:
-        src: "~{{ operator }}/.aqui"
-        dest: "~/repositories/justfiles/{{ ansible_host }}/.aqui"
+        src: "{{ item.item }}"
+        dest: "~/repositories/justfiles/{{ ansible_host }}/{{ item.item | basename }}"
         flat: yes
-      when: aqui_stat.stat.exists
-    - name: TestEnvExists
-      stat:
-        path: "~{{ operator }}/.env"
-      register: env_stat
-    - name: FetchEnv
-      fetch:
-        src: "~{{ operator }}/.env"
-        dest: "~/repositories/justfiles/{{ ansible_host }}/.env"
-        flat: yes
-      when: env_stat.stat.exists
+      when: item.stat.exists
+      loop: "{{ file_stat.results }}"
