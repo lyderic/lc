@@ -25,7 +25,12 @@ function report(ocache)
 				(m.nproc / 2), host)
 		end
 	end
-	printf("\27[2;33m%d host%s processed\27m\n", n, n > 1 and "s" or "")
+	local summary = f("%d host%s processed", n, n > 1 and "s" or "")
+	if env("NOCOLOR") then
+		print(summary)
+	else
+		print("\27[2;33m"..summary.."\27m")
+	end
 end
 
 main()

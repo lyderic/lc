@@ -22,7 +22,7 @@
         path: "{{ item }}"
       register: file_stat
       loop: "{{ dotfiles }}"
-    - name: FetchDotFiles
+    - name: FetchDotfiles
       fetch:
         src: "{{ item.item }}"
         dest: "~/repositories/justfiles/{{ ansible_host }}/{{ item.item | basename }}"
