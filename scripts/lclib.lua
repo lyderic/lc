@@ -1,7 +1,7 @@
 require "lee"
 
 -- global constants
-lcluaversion = "20250728-0"
+lcluaversion = "20250830-0"
 lccache = "/dev/shm/lc"
 width = tonumber(eo("tput cols")) or 80
 
