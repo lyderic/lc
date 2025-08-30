@@ -3,7 +3,7 @@ require "lee"
 -- global constants
 lcluaversion = "20250728-0"
 lccache = "/dev/shm/lc"
-width = tonumber(eo("tput cols"))
+width = tonumber(eo("tput cols")) or 80
 
 -- environment variables
 -- this lib is used by scripts that are called from 'lc', i.e. a
