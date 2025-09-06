@@ -80,6 +80,10 @@ info:
 	end
 	x(f([[echo "%s" | xan view -pIM]], table.concat(lines, "\n")))
 
+# operations on remotes
+[group("reporting")]
+mod remotes
+
 # inventory structure
 [group("reporting")]
 structure: _inventory_cache
@@ -91,10 +95,11 @@ structure: _inventory_cache
 		printf("%s ", host)
 	end
 	print()
-	io.write("\27[1mgroups:\27[m ")
-	for _,group in ipairs(data.all.children) do
-		printf("%s ", group)
-	end
+	for item,d in pairs(data) do
+		if item == "_meta" or item =="all" then goto next end
+		print("***",item,"***")
+		kv(d)
+	::next::end
 	print()
 
 # update packages
@@ -105,7 +110,10 @@ machinesupdate:
 # reboot
 [group("actions")]
 reboot:
-	@ansible "${t}" -bm reboot
+	#!/bin/bash
+	# it'd be unwise to reboot *all* the machines
+	[ "${t}" == "all" ] && t=local
+	ansible "${t}" -bm reboot
 
 # update chezmoi
 [group("actions")]
