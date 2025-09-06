@@ -1,5 +1,5 @@
 alias h   := _help
-alias ls  := names
+alias ls  := structure
 alias s   := status
 alias i   := info
 alias cn  := cnames
@@ -79,6 +79,23 @@ info:
 			info.uptime, info.loadavg))
 	end
 	x(f([[echo "%s" | xan view -pIM]], table.concat(lines, "\n")))
+
+# inventory structure
+[group("reporting")]
+structure: _inventory_cache
+	#!/usr/bin/env -S lua -llee
+	fh = io.open(env("icache"))
+	data = json.decode(fh:read("a"));fh:close()
+	io.write("\27[1mhosts:\27[m ")
+	for host in pairs(data._meta.hostvars) do
+		printf("%s ", host)
+	end
+	print()
+	io.write("\27[1mgroups:\27[m ")
+	for _,group in ipairs(data.all.children) do
+		printf("%s ", group)
+	end
+	print()
 
 # update packages
 [group("actions")]
