@@ -40,10 +40,11 @@ cnames:
 
 # list groups
 [group("reporting")]
-groups:
+groups: _inventory_cache
 	#!/usr/bin/env -S lua -llee
 	target = env("t")
-	data = json.decode(ea("ansible-inventory --list"))
+	fh = io.open(env("icache"))
+	data = json.decode(fh:read("a"));fh:close()
 	for group in pairs(data) do
 		if group == target then valid = true break end
 	end
@@ -120,17 +121,45 @@ rscript:
 
 # connect as uid 1000
 [group("actions")]
-connect-user host:
+connect-user *host: _inventory_cache
 	#!/usr/bin/env -S lua -llee
 	host = "{{host}}"
-	data = json.decode(ea("ansible-inventory --host "..host))
-	remote = data.ansible_incus_remote
+	fh = io.open(env("icache"))
+	data = json.decode(fh:read("a"));fh:close()
+	allhosts = {}
+	if host == '' then
+		for h in pairs(data._meta.hostvars) do
+			table.insert(allhosts, h)
+		end
+		host = eo(f('echo "%s" | fzf', table.concat(allhosts, "\n")))
+	end
+	if not host or host == '' then print("no host") os.exit(122) end
+	for h,d in pairs(data._meta.hostvars) do
+		if h == host then remote = d.ansible_incus_remote end
+	end
 	if remote then
 		x(f("incus exec %s:%s -- su - unix", remote, host))
 	else
 		x("ssh "..host)
 	end
 
+# backup justfiles, .aqui and .env
+[group("actions")]
+justfiles-backup:
+	@lua scripts/justfilesbackup.lua
+
+# remove cached facts and ansible outputs
+[group("actions")]
+reset:
+	rm -rvf /tmp/ansible_facts/* /dev/shm/lc/* "${icache}"
+
+_inventory_cache:
+	#!/bin/bash
+	[ -f "${icache}" ] && exit 0
+	echo -ne "\e[90mbuilding inventory cache...\e[m" > /dev/stderr
+	ansible-inventory --list --output "${icache}"
+	echo -ne "\r\e[K"
+ 
 # run coc, possibly with password
 [group("actions")]
 coc:
@@ -143,16 +172,6 @@ coc:
 		exit $?
 	}
 	ansible coc -a coc
-
-# backup justfiles, .aqui and .env
-[group("actions")]
-justfiles-backup:
-	@lua scripts/justfilesbackup.lua
-
-# remove cached facts and ansible outputs
-[group("actions")]
-reset:
-	rm -rvf /tmp/ansible_facts/* /dev/shm/lc/*
 
 _init:
 	#!/bin/bash
@@ -173,6 +192,8 @@ v:
 	just --evaluate
 
 t := "all"
+
+icache := "/tmp/ansible-inventory-cache.json"
 
 LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
 LC_PLAYBOOKS_DIR := justfile_directory() / "actions"
