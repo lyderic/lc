@@ -189,14 +189,11 @@ _inventory_cache:
 [group("actions")]
 coc:
 	#!/bin/bash
-	# set this in a .env file with e.g.:
-	# COC_KEY_COMMAND='pass path/to/luks/key'
-	[ -z "${COC_KEY_COMMAND}" ] || {
-		COCKEY=$(${COC_KEY_COMMAND})
-		ansible coc -m shell -a "KEY='${COCKEY}' coc"
-		exit $?
-	}
-	ansible coc -a coc
+	[ "${t}" == "all" ] && t=coc
+	COCKEY=$(pass luks/usbdrives)
+	#ansible "${t}" -m shell -a "bash -c 'source ~/.bigbang ; export KEY=${COCKEY} && coc'"
+	#ansible "${t}" -m shell -a "KEY=${COCKEY} coc"
+	lc ="${t}" ruser "KEY=${COCKEY} coc"
 
 _init:
 	#!/bin/bash

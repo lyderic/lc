@@ -50,7 +50,7 @@ end
 -- }
 function ansible(d)
 	os.execute("rm -rf "..d.output) -- always reset cached data
-	d.mode = d.mode or "m" -- default is to as operator, not root
+	d.mode = d.mode or "m" -- default is to run as operator, not root
 	d.module = d.module or "command" -- same default as ansible cli
 	local cmd = f("ansible %q -%s %q -a %q -t %q",
 		target, d.mode, d.module, d.args, d.output)

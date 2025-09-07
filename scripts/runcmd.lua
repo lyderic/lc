@@ -17,7 +17,7 @@ function main()
 		output = dir,
 	}
 	io.write("\27[2;36mrunning, please wait...\27[m") io.flush()
-	ansible(definition)
+	ansible(definition) -- in lclib.lua
 	io.write("\r\27[K")
 	display()
 end
