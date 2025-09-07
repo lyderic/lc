@@ -1,12 +1,13 @@
 ---
 
-# backup justfiles and associated files (.env, .aqui)
+# backup justfiles and associated files (.env, .aqui...)
 
 - name: justfile backup
   hosts: all
   vars:
     dotfiles:
       - "~{{ operator }}/.env"
+      - "~{{ operator }}/.env.lua"
       - "~{{ operator }}/.aqui"
       - "~{{ operator }}/.workstation"
       - "~{{ operator }}/.ssh/config"

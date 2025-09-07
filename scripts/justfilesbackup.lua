@@ -22,7 +22,7 @@ end
 
 function envencrypt()
 	local files = {}
-	for file in e(f("find %q -name .env", jdir)):lines() do
+	for file in e(f("find %q -name '.env*'", jdir)):lines() do
 		local flag = true
 		local gpgfile = file..".gpg"
 		if abs(gpgfile) then
