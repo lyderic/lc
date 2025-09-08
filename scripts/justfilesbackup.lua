@@ -23,6 +23,7 @@ end
 function envencrypt()
 	local files = {}
 	for file in e(f("find %q -name '.env*'", jdir)):lines() do
+		if file:sub(-3) == "gpg" then goto nxt end
 		local flag = true
 		local gpgfile = file..".gpg"
 		if abs(gpgfile) then
@@ -41,7 +42,7 @@ function envencrypt()
 			printf("\27[33m%q has same content as %q\27[m\n", gpgfile, file)
 		end
 		if os.remove(file) then print(file.." removed") end
-	end
+	::nxt::end
 end
 
 main()
