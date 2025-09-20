@@ -16,6 +16,20 @@ function init()
 	jdir, key = env("JUSTFILES_REPOSITORY"), env("GPGKEY")
 end
 
+--[[
+function keycached()
+	local loadedgripscmd = "gpg-connect-agent 'keyinfo --list' /bye"
+		.."| grep ' - 1 P ' | awk '{print$3}'"
+	for loadedgrip in e(loadedgripscmd):lines() do
+		local cmd = "gpg -k | grep -B2 "..loadedgrip
+			.."| head -1 | awk '{print$3}'"
+		local keyname = eo(cmd)
+		if keyname == env("GPGKEY") then return true end
+	end
+	return false
+end
+--]]
+
 function fetch()
 	ocache = pblua("justfilesbackup.yml")
 end
@@ -28,6 +42,9 @@ function envencrypt()
 		local gpgfile = file..".gpg"
 		if abs(gpgfile) then
 			printf("\27[35mfound %s\27[m\n", gpgfile)
+			if not x(f("gpg -d %q >/dev/null", gpgfile)) then
+				die("cannot decrypt "..gpgfile.." for comparison")
+			end
 			local esum = eo(f("gpg -d %q | md5sum", gpgfile))
 			local dsum = eo(f("cat %q | md5sum", file))
 			if esum == dsum then flag = false end
