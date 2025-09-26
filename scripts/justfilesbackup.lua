@@ -7,6 +7,11 @@ function main()
 end
 
 function init()
+	init_envvars()
+	check_key()
+end
+
+function init_envvars()
 	for _,var in ipairs{"JUSTFILES_REPOSITORY","GPGKEY"} do
 		if not env(var) then die(var.." not found!") end
 		if env(var) == "--unset--" then
@@ -14,20 +19,9 @@ function init()
 		end
 	end
 	jdir, key = env("JUSTFILES_REPOSITORY"), env("GPGKEY")
-	check_key()
 end
 
 function check_key()
-	local loadedgripscmd = "gpg-connect-agent 'keyinfo --list' /bye"
-		.."| grep ' - 1 P ' | awk '{print$3}'"
-	for loadedgrip in e(loadedgripscmd):lines() do
-		local cmd = "gpg -k | grep -B2 "..loadedgrip
-			.."| head -1 | awk '{print$3}'"
-		local keyname = eo(cmd)
-		if keyname == env("GPGKEY") then return end
-	end
-	print("\27[33mgpg key missing from agent's cache\27[m")
-	--we force the key to be loaded to the agent:
 	local dummy = os.tmpname()
 	if not x(f("gpg -e -r %s %q", key, dummy)) then
 		die("dummy crypt failed!")
