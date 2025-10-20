@@ -10,6 +10,10 @@ function report(ocache)
 	local mut, mup = 30, 10
 	for host, data in pairs(ocache) do
 		local m = json.decode(data.stdout)
+		if not m then
+			printf("\27[31mno vigilax data for %s!\27[m\n", host)
+			goto next
+		end
 		n = n + 1
 		if m.secondsup > mut*24*3600 then
 			printf("%s uptime: %s\n", host, m.uptime)
@@ -24,7 +28,7 @@ function report(ocache)
 			printf("One minute load average is > %d on %s\n",
 				(m.nproc / 2), host)
 		end
-	end
+	::next::end
 	local summary = f("%d host%s processed", n, n > 1 and "s" or "")
 	if env("NOCOLOR") then
 		print(summary)
