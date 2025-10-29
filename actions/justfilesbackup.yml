@@ -10,6 +10,7 @@
       - "~{{ operator }}/.envrc"
       - "~{{ operator }}/.env.lua"
       - "~{{ operator }}/.aqui"
+      - "~{{ operator }}/.bacon.tgz"
       - "~{{ operator }}/.workstation"
       - "~{{ operator }}/.ssh/config"
 
