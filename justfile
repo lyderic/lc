@@ -88,19 +88,26 @@ mod remotes
 [group("reporting")]
 structure: _inventory_cache
 	#!/usr/bin/env -S lua -llee
+	function wrap(t)
+		local fold = e("fold -s","w")
+		fold:write(table.concat(t," "));fold:close()
+		print()
+	end
 	fh = io.open(env("icache"))
 	data = json.decode(fh:read("a"));fh:close()
-	io.write("\27[1mhosts:\27[m ")
-	for host in pairs(data._meta.hostvars) do
-		printf("%s ", host)
-	end
-	print()
-	for item,d in pairs(data) do
-		if item == "_meta" or item =="all" then goto next end
-		print("***",item,"***")
-		kv(d)
+	io.write("\27[1mgroups:\27[m ")
+	groups = {}
+	for group in pairs(data) do
+		if group == "_meta" or group == "all" then goto next end
+		table.insert(groups, group)
 	::next::end
-	print()
+	wrap(groups)
+	io.write("\27[1mhosts:\27[m ")
+	hosts = {}
+	for host in pairs(data._meta.hostvars) do
+		table.insert(hosts, host)
+	end
+	wrap(hosts)
 
 # update packages
 [group("actions")]
