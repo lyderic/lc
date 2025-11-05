@@ -5,11 +5,22 @@ function main()
 	report(ocache.plays[1].tasks[1].hosts)
 end
 
-function report(ocache)
+function report(hosts)
+	if not hosts then print("no hosts!") return end
 	local n = 0
 	local mut, mup = 30, 10
-	for host, data in pairs(ocache) do
+	for host, data in pairs(hosts) do
+		if data.unreachable or not data.changed then
+			printf("\27[31m%s unreachable or vigilax failed!\27[m\n", host)
+			goto next
+		end
+		if env("DEBUG") == "true" then
+			print("\27[7m"..host.."\27[m")
+		end
 		local m = json.decode(data.stdout)
+		if env("DEBUG") == "true" then
+			dump(m)
+		end
 		if not m then
 			printf("\27[31mno vigilax data for %s!\27[m\n", host)
 			goto next
