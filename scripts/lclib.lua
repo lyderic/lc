@@ -58,6 +58,33 @@ function ansible(d)
 	return x(cmd)
 end
 
+function get_vigilax()
+	local ocache = pblua("vigilax.yml")
+	local hosts = ocache.plays[1].tasks[1].hosts
+	if not hosts then print("no hosts!") return nil end
+	local valid_hosts = {}
+	for host, data in pairs(hosts) do
+		if data.unreachable or not data.changed then
+			printf("\27[31m%s unreachable or vigilax failed!\27[m\n",
+				host)
+			goto next
+		end
+		if env("DEBUG") == "true" then
+			print("\27[7m"..host.."\27[m")
+		end
+		local m = json.decode(data.stdout)
+		if env("DEBUG") == "true" then
+			dump(m)
+		end
+		if not m then
+			printf("\27[31mno vigilax data for %s!\27[m\n", host)
+			goto next
+		end
+		valid_hosts[host] = m
+	::next::end
+	return valid_hosts
+end
+
 function header(message, decoration)
 	if tonumber(width) > 99 then width = 99 end
 	if not decoration then decoration = "\27[1;7m" end
