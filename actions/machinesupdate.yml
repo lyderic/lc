@@ -1,5 +1,6 @@
 - name: Patching and Updating Linux Systems
   hosts: all
+  serial: 1
   become: yes
 
   tasks:

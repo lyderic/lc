@@ -1,8 +1,9 @@
 alias h   := _help
-alias ls  := structure
+alias ls  := cnames
+alias l   := names
+alias st  := structure
 alias s   := status
 alias i   := info
-alias cn  := cnames
 alias gr  := groups
 alias u   := connect-user
 alias r   := ruser
@@ -67,18 +68,7 @@ status:
 # show info 
 [group("reporting")]
 info:
-	#!/usr/bin/env -S lua -llee
-	require "lclib"
-	local ocache = pblua("vigilax.yml")
-	hosts = ocache.plays[1].tasks[1].hosts
-	lines = { "Host,uproc,Distribution,Updates,Uptime,Avg" }
-	for host,data in pairs(hosts) do
-		info = json.decode(data.stdout)
-		table.insert(lines, f([["%s","%s","%s","%s,%s,%s"]],
-			host, info.nproc,info.distro, info.updates,
-			info.uptime, info.loadavg))
-	end
-	x(f([[echo "%s" | xan view -pIM]], table.concat(lines, "\n")))
+	@lua ./scripts/info.lua
 
 # operations on remotes
 [group("reporting")]
