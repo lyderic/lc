@@ -1,5 +1,6 @@
 alias h   := _help
 alias cn  := cnames
+alias an  := anames
 alias ls  := names
 alias st  := structure
 alias s   := status
@@ -26,18 +27,38 @@ names:
 
 # list names with remotes
 [group("reporting")]
-cnames: 
+cnames *sep:
 	#!/usr/bin/env -S lua -llee
 	cmd = "ansible-inventory --list --limit '{{t}}'"
 	data = json.decode(ea(cmd))
+	chosts = {}
 	for host,keys in pairs(data._meta.hostvars) do
 		chost = host
 		if keys.ansible_connection == "community.general.incus" then
 			remote = keys.ansible_incus_remote or "local"
 			chost = f("%s:%s", remote, host)
 		end
-		print(chost)
+		table.insert(chosts,chost)
 	end
+	sep = os.getenv("sep")
+	if sep == "" then sep = "\n" end
+	print(table.concat(chosts, sep))
+
+# list names of archlinux hosts
+[group("reporting")]
+anames *sep:
+	#!/usr/bin/env -S lua -llee
+	cmd = "ansible-inventory --list --limit '{{t}}'"
+	data = json.decode(ea(cmd))
+	archlinux_hosts = {}
+	for host,keys in pairs(data._meta.hostvars) do
+		if keys.ansible_os_family.__ansible_unsafe == "Archlinux" then
+			table.insert(archlinux_hosts, host)
+		end
+	end
+	sep = os.getenv("sep")
+	if sep == "" then sep = "\n" end
+	print(table.concat(archlinux_hosts, sep))
 
 # list groups
 [group("reporting")]
