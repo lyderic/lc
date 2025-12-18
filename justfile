@@ -44,21 +44,24 @@ cnames *sep:
 	if sep == "" then sep = "\n" end
 	print(table.concat(chosts, sep))
 
-# list names of archlinux hosts
+# list names of hosts running Archlinux or $DISTRO
 [group("reporting")]
-anames *sep:
+anames *sep: _inventory_cache
 	#!/usr/bin/env -S lua -llee
 	cmd = "ansible-inventory --list --limit '{{t}}'"
 	data = json.decode(ea(cmd))
-	archlinux_hosts = {}
+	--fh = io.open(env("icache"));content = fh:read("a");fh:close()
+	--data = json.decode(content)
+	distro = env("DISTRO") or "Archlinux"
+	distro_hosts = {}
 	for host,keys in pairs(data._meta.hostvars) do
-		if keys.ansible_os_family.__ansible_unsafe == "Archlinux" then
-			table.insert(archlinux_hosts, host)
+		if keys.ansible_os_family.__ansible_unsafe == distro then
+			table.insert(distro_hosts, host)
 		end
 	end
 	sep = os.getenv("sep")
 	if sep == "" then sep = "\n" end
-	print(table.concat(archlinux_hosts, sep))
+	print(table.concat(distro_hosts, sep))
 
 # list groups
 [group("reporting")]
@@ -194,12 +197,13 @@ justfiles-backup:
 # remove cached facts and ansible outputs
 [group("actions")]
 reset:
-	rm -rvf /tmp/ansible_facts/* /dev/shm/lc/* "${icache}"
+	rm -rvf /tmp/ansible* /dev/shm/lc*
 
 _inventory_cache:
 	#!/bin/bash
 	[ -f "${icache}" ] && exit 0
 	echo -ne "\e[90mbuilding inventory cache...\e[m" > /dev/stderr
+	ansible all -m setup -f 32 >/dev/null 
 	ansible-inventory --list --output "${icache}"
 	echo -ne "\r\e[K"
  
@@ -233,6 +237,7 @@ v:
 
 t := "all"
 
+acache := "/tmp/ansible_facts"
 icache := "/tmp/ansible-inventory-cache.json"
 
 LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
