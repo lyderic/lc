@@ -55,6 +55,10 @@ anames *sep: _inventory_cache
 	distro = env("DISTRO") or "Archlinux"
 	distro_hosts = {}
 	for host,keys in pairs(data._meta.hostvars) do
+		if not keys.ansible_os_family then
+			print("\27[31mreset the cache (lc reset)\27[m")
+			os.exit(32)
+		end
 		if keys.ansible_os_family.__ansible_unsafe == distro then
 			table.insert(distro_hosts, host)
 		end
