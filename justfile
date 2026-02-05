@@ -244,7 +244,6 @@ t := "all"
 acache := "/tmp/ansible_facts"
 icache := "/tmp/ansible-inventory-cache.json"
 
-LUA_PATH := env("LUA_PATH") + ";" + "scripts/?.lua"
 LC_PLAYBOOKS_DIR := justfile_directory() / "actions"
 LC_SCRIPTS_DIR := justfile_directory() / "scripts"
 
