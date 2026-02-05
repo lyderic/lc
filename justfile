@@ -217,8 +217,6 @@ coc:
 	#!/bin/bash
 	[ "${t}" == "all" ] && t=coc
 	COCKEY=$(pass luks/usbdrives)
-	#ansible "${t}" -m shell -a "bash -c 'source ~/.bigbang ; export KEY=${COCKEY} && coc'"
-	#ansible "${t}" -m shell -a "KEY=${COCKEY} coc"
 	lc ="${t}" ruser "KEY=${COCKEY} coc"
 
 _init:
@@ -243,6 +241,12 @@ t := "all"
 
 acache := "/tmp/ansible_facts"
 icache := "/tmp/ansible-inventory-cache.json"
+
+DEFAULT_LUA_PATH := `lua -e 'print(package.path)'`
+LUA_PATH := DEFAULT_LUA_PATH + ";scripts/?.lua"
+
+luap:
+	echo "${LUA_PATH}" | tr ';' '\n' | sort
 
 LC_PLAYBOOKS_DIR := justfile_directory() / "actions"
 LC_SCRIPTS_DIR := justfile_directory() / "scripts"
