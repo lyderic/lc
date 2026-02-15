@@ -14,7 +14,7 @@
       delegate_to: localhost
       run_once: true
     - name: produce vigilax report
-      command: "~{{ operator }}/.justfile.d/vigilax.lua"
+      command: "/usr/local/bin/vigilax"
       register: script_output
     - name: vigilax and facts in combined output
       copy:
