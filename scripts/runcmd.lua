@@ -16,9 +16,9 @@ function main()
 		args = table.concat(t, " "),
 		output = dir,
 	}
-	io.write("\27[2;36mrunning, please wait...\27[m") io.flush()
+	io.stderr:write("\27[2;36mrunning, please wait...\27[m") io.flush()
 	ansible(definition) -- in lclib.lua
-	io.write("\r\27[K")
+	io.stderr:write("\r\27[K")
 	display()
 end
 
