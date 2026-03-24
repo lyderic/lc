@@ -1,4 +1,4 @@
-version := "20260324-0"
+version := "20260324-1"
 
 alias h   := _help
 alias cn  := cnames

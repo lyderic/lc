@@ -27,7 +27,7 @@ function main()
 		end
 	::next::end
 	-- background cleaning
-	x(f("ansible-runner start %q -m file -a 'path=/dev/shm/lc_script state=absent' --hosts %q -i cleaning_lc_script --json", lccache, target))
+	--x(f("ansible-runner start %q -m file -a 'path=/dev/shm/lc_script state=absent' --hosts %q -i cleaning_lc_script --json", lccache, target))
 end
 
 function datadump(message, host, data)
