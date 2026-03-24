@@ -1,3 +1,5 @@
+version := "20260324-0"
+
 alias h   := _help
 alias cn  := cnames
 alias an  := anames
