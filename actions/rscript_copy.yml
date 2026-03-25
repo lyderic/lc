@@ -1,0 +1,12 @@
+---
+- name: script_copy
+  hosts: all
+  serial: 1
+  tasks:
+    - name: copy script to remote
+      copy:
+        src: /dev/shm/lc/lc_script
+        dest: /dev/shm/lc_script
+        owner: "{{ operator }}"
+        group: "{{ operator }}"
+        mode: 0755

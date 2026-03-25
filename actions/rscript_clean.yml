@@ -1,0 +1,8 @@
+---
+- name: script_clean
+  hosts: all
+  tasks:
+    - name: clean rscript
+      file:
+        path: "/dev/shm/lc_script"
+        state: absent

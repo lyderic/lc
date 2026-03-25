@@ -1,0 +1,7 @@
+---
+- name: script_exec
+  hosts: all
+  serial: 1
+  tasks:
+    - name: execute script
+      shell: /dev/shm/lc_script
