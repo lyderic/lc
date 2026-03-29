@@ -1,4 +1,4 @@
-version := "20260324-1"
+version := "20260329-0"
 
 alias h   := _help
 alias cn  := cnames
@@ -162,14 +162,14 @@ rroot *cmd:
 	@lua ./scripts/runcmd.lua "bm" ${cmd}
 
 # run script as user (operator)
-[group("actions")]
-rscript:
-	#!/bin/bash
-	[ -f ~/.cache/vim/swap/%dev%shm%lc%lc_script.swp ] || {
-		vim /dev/shm/lc/lc_script
-		chmod +x /dev/shm/lc/lc_script
-	}
-	lua ./scripts/rscript.lua | less -FRIX
+#[group("actions")]
+#rscript:
+#	#!/bin/bash
+#	[ -f ~/.cache/vim/swap/%dev%shm%lc%lc_script.swp ] || {
+#		vim /dev/shm/lc/lc_script
+#		chmod +x /dev/shm/lc/lc_script
+#	}
+#	lua ./scripts/rscript.lua | less -FRIX
 
 # connect as uid 1000
 [group("actions")]
