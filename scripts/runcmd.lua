@@ -29,7 +29,8 @@ function display()
 		local combined = {}
 		combined.host = host
 		local fh = io.open(dir.."/"..host)	
-		local data = json.decode(fh:read("a")) fh:close()
+		local content = fh:read("a")
+		local data = json.decode(content) fh:close()
 		combined.lines = extract_and_colorize(data)
 		if #combined.lines > 1 then multi = true end
 		table.insert(all, combined)
@@ -60,11 +61,27 @@ end
 
 function extract_and_colorize(data)
 	local combined_lines = {}
-	for _,line in ipairs(data.stdout_lines) do
-		table.insert(combined_lines, "\27[32m"..line.."\27[m")
+	if not data then
+		table.insert(combined_lines, "\27[32mno data\27[m")
+		return combined_lines
 	end
-	for _,line in ipairs(data.stderr_lines) do
-		table.insert(combined_lines, "\27[31m[ERR] "..line.."\27[m")
+	local outputok = false
+	local sout = data.stdout_lines
+	if sout then
+		outputok = true
+		for _,line in ipairs(sout) do
+			table.insert(combined_lines, "\27[32m"..line.."\27[m")
+		end
+	end
+	local serr = data.stderr_lines
+	if serr then
+		outputok = true
+		for _,line in ipairs(serr) do
+			table.insert(combined_lines, "\27[31m[ERR] "..line.."\27[m")
+		end
+	end
+	if not outputok then
+		table.insert(combined_lines, "\27[33mno output\27[m")
 	end
 	return combined_lines
 end

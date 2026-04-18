@@ -1,7 +1,6 @@
-version := "20260329-0"
+version := "20260404-0"
 
 alias h   := _help
-alias cn  := cnames
 alias an  := anames
 alias ls  := names
 alias st  := structure
@@ -24,27 +23,8 @@ _help:
 
 # list names
 [group("reporting")]
-names:
+names: _cache
 	@ansible "${t}" --list | awk 'NR>1 {print $1}'
-
-# list names with remotes
-[group("reporting")]
-cnames *sep:
-	#!/usr/bin/env -S lua -llee
-	cmd = "ansible-inventory --list --limit '{{t}}'"
-	data = json.decode(ea(cmd))
-	chosts = {}
-	for host,keys in pairs(data._meta.hostvars) do
-		chost = host
-		if keys.ansible_connection == "community.general.incus" then
-			remote = keys.ansible_incus_remote or "local"
-			chost = f("%s:%s", remote, host)
-		end
-		table.insert(chosts,chost)
-	end
-	sep = os.getenv("sep")
-	if sep == "" then sep = "\n" end
-	print(table.concat(chosts, sep))
 
 # list names of hosts running Archlinux or $DISTRO
 [group("reporting")]
@@ -99,10 +79,6 @@ status:
 [group("reporting")]
 info:
 	@lua ./scripts/info.lua
-
-# operations on remotes
-[group("reporting")]
-mod remotes
 
 # inventory structure
 [group("reporting")]
@@ -256,6 +232,23 @@ LC_SCRIPTS_DIR := justfile_directory() / "scripts"
 # Set these variables in .env file. They are mandatory
 JUSTFILES_REPOSITORY := env("JUSTFILES_REPOSITORY", "--unset--")
 GPGKEY := env("GPGKEY", "--unset--")
+
+db := "/dev/shm/lc.db"
+_cache:
+	#!/bin/bash
+	[ -f $db ] && exit 0
+	echo "${machines}" | sqlite3 -csv $db ".import /dev/stdin t"
+
+machines := '''name,operator,distro
+nono,lyderic,ubuntu
+cube,lyderic,arch
+janus,lyderic,arch
+zima,lyderic,arch
+piq,lyderic,debian
+europe,lyderic,arch
+leon,lyderic,arch
+michel,lyderic,ubuntu
+adam,lyderic,ubuntu'''
 
 set dotenv-required
 set export
